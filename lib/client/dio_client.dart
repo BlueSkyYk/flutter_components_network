@@ -15,9 +15,6 @@ class DioClient {
     BaseOptions? options,
     List<Interceptor>? beforeInterceptors,
     List<Interceptor>? afterInterceptors,
-    bool showLog = false,
-    void Function(String message)? logCallback,
-
     bool enableRetry = true,
     int maxRetries = 3,
     Duration baseDelay = const Duration(seconds: 1),
@@ -25,6 +22,7 @@ class DioClient {
     bool retryNonIdempotent = true,
     bool Function(DioException err)? onCheckBusinessLogicRetry,
 
+    bool showLog = false,
     bool logRequest = true,
     bool logRequestHeader = true,
     bool logRequestBody = true,
@@ -48,11 +46,8 @@ class DioClient {
             connectTimeout: Duration(seconds: 15),
             receiveTimeout: Duration(seconds: 15),
             sendTimeout: Duration(seconds: 20),
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-            },
             responseType: ResponseType.json,
+            contentType: Headers.jsonContentType,
           ),
     );
 
@@ -64,22 +59,26 @@ class DioClient {
 
     _dio.interceptors.addAll(beforeInterceptors ?? []);
 
+    final logPrinter = showLog ? (logPrint ?? _debugPrint) : null;
+
     // Log Interceptor（日志拦截器）
-    _dio.interceptors.add(
-      LogInterceptor(
-        request: logRequest,
-        requestHeader: logRequestHeader,
-        requestBody: logRequestBody,
-        responseBody: logResponseBody,
-        responseHeader: logResponseHeader,
-        error: logError,
-        logPrint: logPrint ?? _debugPrint,
-      ),
-    );
+    if (showLog) {
+      _dio.interceptors.add(
+        LogInterceptor(
+          request: logRequest,
+          requestHeader: logRequestHeader,
+          requestBody: logRequestBody,
+          responseBody: logResponseBody,
+          responseHeader: logResponseHeader,
+          error: logError,
+          logPrint: logPrinter ?? _debugPrint,
+        ),
+      );
+    }
 
     _dio.interceptors.addAll([
       ToastLoadingInterceptor(
-        logPrint: _debugPrint,
+        logPrint: logPrinter,
         enableErrorToast: enableErrorToast,
         enableLoading: enableLoading,
         showLoadingCallback: showLoadingCallback,
@@ -93,7 +92,7 @@ class DioClient {
       _dio.interceptors.add(
         RetryInterceptor(
           dio: _dio,
-          logPrint: _debugPrint,
+          logPrint: logPrinter,
           maxRetries: maxRetries,
           baseDelay: baseDelay,
           retryableStatusCodes: retryableStatusCodes,

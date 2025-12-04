@@ -8,7 +8,8 @@ import '../interceptors/toast_loading_interceptor.dart';
 class DioClient {
   late Dio _dio;
 
-  HttpBusinessException? Function(Response response)? _onCheckError;
+  HttpBusinessException? Function(Response? response, DioException? err)?
+  _onCheckError;
 
   DioClient({
     String baseUrl = '',
@@ -37,7 +38,8 @@ class DioClient {
     void Function(String? message)? showLoadingCallback,
     void Function()? hideLoadingCallback,
     void Function(String message)? showToastCallback,
-    HttpBusinessException? Function(Response response)? onCheckError,
+    HttpBusinessException? Function(Response? response, DioException? err)?
+    onCheckError,
   }) {
     final bsUrl = baseUrl.trim();
     _dio = Dio(
@@ -275,7 +277,7 @@ class DioClient {
       onSendProgress: onSendProgress,
       onReceiveProgress: onReceiveProgress,
     );
-    final error = _onCheckError?.call(response);
+    final error = _onCheckError?.call(response, null);
     if (error != null) {
       throw error;
     }

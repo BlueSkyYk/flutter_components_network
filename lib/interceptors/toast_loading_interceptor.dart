@@ -10,7 +10,8 @@ class ToastLoadingInterceptor extends BaseInterceptor {
   void Function(String? message)? _showLoadingCallback;
   void Function()? _hideLoadingCallback;
   void Function(String message)? _showToastCallback;
-  HttpBusinessException? Function(Response response)? _onCheckError;
+  HttpBusinessException? Function(Response? response, DioException? err)?
+  _onCheckError;
 
   ToastLoadingInterceptor({
     super.logPrint,
@@ -19,7 +20,8 @@ class ToastLoadingInterceptor extends BaseInterceptor {
     void Function(String? message)? showLoadingCallback,
     void Function()? hideLoadingCallback,
     void Function(String message)? showToastCallback,
-    HttpBusinessException? Function(Response response)? onCheckError,
+    HttpBusinessException? Function(Response? response, DioException? err)?
+    onCheckError,
   }) {
     _enableErrorToast = enableErrorToast;
     _enableLoading = enableLoading;
@@ -52,7 +54,7 @@ class ToastLoadingInterceptor extends BaseInterceptor {
       // ⭐ 重试期间不弹Toast
       if (_isShowErrorToast(response.requestOptions) &&
           !_isRetrying(response.requestOptions)) {
-        final error = _onCheckError?.call(response);
+        final error = _onCheckError?.call(response, null);
         if (error != null) {
           _showToastCallback?.call(error.message);
         }
@@ -65,6 +67,27 @@ class ToastLoadingInterceptor extends BaseInterceptor {
       // ⭐ Loading 只在非重试状态下关闭（重试结束后会自动关闭）
       if (_isShowLoading(response.requestOptions) &&
           !_isRetrying(response.requestOptions)) {
+        _hideLoadingCallback?.call();
+      }
+    }
+  }
+
+  @override
+  void onError(DioException err, ErrorInterceptorHandler handler) async {
+    // 处理 DioError
+    if (_isShowErrorToast(err.requestOptions) &&
+        !_isRetrying(err.requestOptions)) {
+      final error = _onCheckError?.call(err.response, null);
+      if (error != null) {
+        _showToastCallback?.call(error.message);
+      }
+    }
+    try {
+      handler.next(err);
+    } finally {
+      // ⭐ Loading 只在非重试状态下关闭（重试结束后会自动关闭）
+      if (_isShowLoading(err.requestOptions) &&
+          !_isRetrying(err.requestOptions)) {
         _hideLoadingCallback?.call();
       }
     }

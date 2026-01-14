@@ -3,8 +3,8 @@ import 'package:dio/dio.dart';
 Future<Response<ResponseBody?>> sendDataResponseStream({
   required String url,
   Dio? dio,
-  Object? data,
   Map<String, dynamic>? queryParameters,
+  Object? data,
   Options? options,
   CancelToken? cancelToken,
 }) async {
@@ -18,7 +18,8 @@ Future<Response<ResponseBody?>> sendDataResponseStream({
           method: "GET",
         ),
       );
-  client.options.responseType = ResponseType.stream;
+  options ??= Options();
+  options.responseType = ResponseType.stream;
   return client.request<ResponseBody>(
     url,
     options: options,

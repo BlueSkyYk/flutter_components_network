@@ -121,6 +121,7 @@ class DioClient {
     bool showLoading = true,
     bool showErrorToast = true,
     String? loadingMessage,
+    bool notRetryKey = false,
     CancelToken? cancelToken,
     ProgressCallback? onReceiveProgress,
   }) {
@@ -132,6 +133,7 @@ class DioClient {
       showLoading: showLoading,
       showErrorToast: showErrorToast,
       loadingMessage: loadingMessage,
+      notRetryKey: notRetryKey,
       cancelToken: cancelToken,
       onReceiveProgress: onReceiveProgress,
     );
@@ -145,6 +147,7 @@ class DioClient {
     bool showLoading = true,
     bool showErrorToast = true,
     String? loadingMessage,
+    bool notRetryKey = false,
     CancelToken? cancelToken,
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
@@ -157,6 +160,7 @@ class DioClient {
       showLoading: showLoading,
       showErrorToast: showErrorToast,
       loadingMessage: loadingMessage,
+      notRetryKey: notRetryKey,
       cancelToken: cancelToken,
       onSendProgress: onSendProgress,
       onReceiveProgress: onReceiveProgress,
@@ -171,6 +175,7 @@ class DioClient {
     bool showLoading = true,
     bool showErrorToast = true,
     String? loadingMessage,
+    bool notRetryKey = false,
     CancelToken? cancelToken,
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
@@ -183,6 +188,7 @@ class DioClient {
       showLoading: showLoading,
       showErrorToast: showErrorToast,
       loadingMessage: loadingMessage,
+      notRetryKey: notRetryKey,
       cancelToken: cancelToken,
       onSendProgress: onSendProgress,
       onReceiveProgress: onReceiveProgress,
@@ -197,6 +203,7 @@ class DioClient {
     bool showLoading = true,
     bool showErrorToast = true,
     String? loadingMessage,
+    bool notRetryKey = false,
     CancelToken? cancelToken,
   }) {
     return request(
@@ -207,6 +214,7 @@ class DioClient {
       showLoading: showLoading,
       showErrorToast: showErrorToast,
       loadingMessage: loadingMessage,
+      notRetryKey: notRetryKey,
       cancelToken: cancelToken,
     );
   }
@@ -219,6 +227,7 @@ class DioClient {
     bool showLoading = true,
     bool showErrorToast = true,
     String? loadingMessage,
+    bool notRetryKey = false,
     CancelToken? cancelToken,
   }) {
     return request(
@@ -229,6 +238,7 @@ class DioClient {
       showLoading: showLoading,
       showErrorToast: showErrorToast,
       loadingMessage: loadingMessage,
+      notRetryKey: notRetryKey,
       cancelToken: cancelToken,
     );
   }
@@ -241,6 +251,7 @@ class DioClient {
     bool showLoading = true,
     bool showErrorToast = true,
     String? loadingMessage,
+    bool notRetryKey = false,
     CancelToken? cancelToken,
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
@@ -253,9 +264,35 @@ class DioClient {
       showLoading: showLoading,
       showErrorToast: showErrorToast,
       loadingMessage: loadingMessage,
+      notRetryKey: notRetryKey,
       cancelToken: cancelToken,
       onSendProgress: onSendProgress,
       onReceiveProgress: onReceiveProgress,
+    );
+  }
+
+  Future<Response<ResponseBody?>> sendResponseStream({
+    required String url,
+    Map<String, String>? query,
+    Object? data,
+    Options? options,
+    bool showLoading = true,
+    bool showErrorToast = true,
+    String? loadingMessage,
+    CancelToken? cancelToken,
+  }) {
+    options ??= Options(method: "GET");
+    options.responseType = ResponseType.stream;
+    return request(
+      url: url,
+      query: query,
+      data: data,
+      options: options,
+      showLoading: showLoading,
+      showErrorToast: showErrorToast,
+      loadingMessage: loadingMessage,
+      notRetryKey: true,
+      cancelToken: cancelToken,
     );
   }
 
@@ -267,6 +304,7 @@ class DioClient {
     bool showLoading = true,
     bool showErrorToast = true,
     String? loadingMessage,
+    bool notRetryKey = false,
     CancelToken? cancelToken,
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
@@ -276,6 +314,9 @@ class DioClient {
     options.extra![ExtraKeys.showLoadingKey] = showLoading;
     options.extra![ExtraKeys.showErrorToastKey] = showErrorToast;
     options.extra![ExtraKeys.loadingMessageKey] = loadingMessage;
+    if (notRetryKey) {
+      options.extra![ExtraKeys.notRetryKey] = true;
+    }
     final response = await _dio.request<T>(
       url,
       data: data,

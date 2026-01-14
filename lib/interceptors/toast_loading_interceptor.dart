@@ -95,7 +95,8 @@ class ToastLoadingInterceptor extends BaseInterceptor {
 
   // 是否由重试触发
   bool _isRetrying(RequestOptions options) {
-    return options.extra[ExtraKeys.retryingKey] == true;
+    return options.extra[ExtraKeys.retryingKey] == true &&
+        !(options.extra[ExtraKeys.notRetryKey] as bool? ?? false);
   }
 
   bool _isShowErrorToast(RequestOptions options) {

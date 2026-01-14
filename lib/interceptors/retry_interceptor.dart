@@ -77,6 +77,12 @@ class RetryInterceptor extends BaseInterceptor {
   //  是否应该重试
   // =======================
   Future<bool> _shouldRetry(DioException err) async {
+    final notRetryKey =
+        err.requestOptions.extra[ExtraKeys.notRetryKey] as bool? ?? false;
+    if (notRetryKey) {
+      return false;
+    }
+
     //（1）业务逻辑错误优先，例如 {code: 50001}
     if (onCheckBusinessLogicRetry != null && onCheckBusinessLogicRetry!(err)) {
       return true;

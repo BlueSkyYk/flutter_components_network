@@ -5,4 +5,5 @@ class ExtraKeys {
   static const String showLoadingKey = "show_loading";
   static const String loadingMessageKey = "loading_message";
   static const String retryingKey = "__retrying__";
+  static const String notRetryKey = "not_retry";
 }

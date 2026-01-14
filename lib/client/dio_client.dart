@@ -8,6 +8,14 @@ import '../interceptors/toast_loading_interceptor.dart';
 class DioClient {
   late Dio _dio;
 
+  Dio? get dio {
+    try {
+      return _dio;
+    } catch (e) {
+      return null;
+    }
+  }
+
   HttpBusinessException? Function(Response? response, DioException? err)?
   _onCheckError;
 
